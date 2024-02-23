@@ -1,0 +1,53 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model UserApiLimit {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    userId    String   @unique
+    count     Int      @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model UserSubscription {
+    id                       String    @id @default(auto()) @map("_id") @db.ObjectId
+    userId                   String    @unique
+    stripeCustomerId         String?   @map("stripe_customer_id")
+    stripeSubscriptionId     String?   @map("stripe_subscription_id")
+    stripePriceId            String?   @map("stripe_price_id")
+    stripeCurrentPeriodStart DateTime? @map("stripe_current_period_start")
+    stripeCurrentPeriodEnd   DateTime? @map("stripe_current_period_end")
+}
+
+model UserChat {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId    String   @unique
+    chats     Chat[]
+}
+
+model Chat {
+    id         String    @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    messages   Message[]
+    userChat   UserChat? @relation(fields: [userChatId], references: [id])
+    userChatId String?   @db.ObjectId
+}
+
+model Message {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    content   String
+    chat      Chat     @relation(fields: [chatId], references: [id])
+    chatId    String   @db.ObjectId
+    userId    String
+}
