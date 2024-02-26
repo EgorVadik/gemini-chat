@@ -1,4 +1,7 @@
 export const MAX_FREE_MESSAGES = 50
+export const FREE_CHAR_LIMIT = 750
+export const PAID_CHAR_LIMIT = 4096
+export const DAY_IN_MS = 86_400_000
 
 export const FEATURES = [
     {
@@ -48,3 +51,18 @@ export const PRICING = [
         ],
     },
 ]
+
+export const MODELS = [
+    {
+        value: 'gemini',
+        label: 'Gemini',
+    },
+    {
+        value: 'chatgpt35',
+        label: 'ChatGPT-3.5',
+    },
+    {
+        value: 'chatgpt4',
+        label: 'ChatGPT-4',
+    },
+] as const

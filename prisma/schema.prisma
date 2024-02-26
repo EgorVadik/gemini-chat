@@ -13,33 +13,27 @@ model UserApiLimit {
     count     Int      @default(0)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    plan      Plan     @default(FREE)
 }
 
 model UserSubscription {
     id                       String    @id @default(auto()) @map("_id") @db.ObjectId
     userId                   String    @unique
-    stripeCustomerId         String?   @map("stripe_customer_id")
-    stripeSubscriptionId     String?   @map("stripe_subscription_id")
+    stripeCustomerId         String?   @unique @map("stripe_customer_id")
+    stripeSubscriptionId     String?   @unique @map("stripe_subscription_id")
     stripePriceId            String?   @map("stripe_price_id")
     stripeCurrentPeriodStart DateTime? @map("stripe_current_period_start")
     stripeCurrentPeriodEnd   DateTime? @map("stripe_current_period_end")
-}
-
-model UserChat {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    userId    String   @unique
-    chats     Chat[]
+    createdAt                DateTime  @default(now())
 }
 
 model Chat {
-    id         String    @id @default(auto()) @map("_id") @db.ObjectId
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
-    messages   Message[]
-    userChat   UserChat? @relation(fields: [userChatId], references: [id])
-    userChatId String?   @db.ObjectId
+    id        String    @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    title     String?   @default("Untitled")
+    userId    String
+    messages  Message[]
 }
 
 model Message {
@@ -47,7 +41,20 @@ model Message {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     content   String
-    chat      Chat     @relation(fields: [chatId], references: [id])
+    role      Role     @default(user)
+    chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
     chatId    String   @db.ObjectId
-    userId    String
+    userId    String?
+}
+
+enum Plan {
+    FREE
+    PRO
+    ENTERPRISE
+}
+
+enum Role {
+    user
+    system
+    assistant
 }

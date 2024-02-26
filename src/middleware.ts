@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export default authMiddleware({
     publicRoutes: ['/', '/sign-in', '/sign-up'],
-    ignoredRoutes: [],
+    ignoredRoutes: ['/api/webhooks/stripe'],
     async afterAuth(auth, req) {
         if (auth.isPublicRoute && auth.userId != null) {
             return NextResponse.redirect(new URL('/chat', req.url))
