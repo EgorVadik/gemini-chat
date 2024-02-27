@@ -2,9 +2,9 @@
 
 import { getUserName } from '@/lib/utils'
 import { UserButton, useUser } from '@clerk/nextjs'
-import { useTheme } from 'next-themes'
-import { dark } from '@clerk/themes'
 import { ModeToggle } from './mode-toggle'
+import { dark } from '@clerk/themes'
+import { useTheme } from 'next-themes'
 
 export const UserProfileButton = () => {
     const { user } = useUser()
@@ -16,7 +16,12 @@ export const UserProfileButton = () => {
                 <UserButton
                     appearance={{
                         baseTheme: resolvedTheme === 'dark' ? dark : undefined,
-                        elements: {},
+                    }}
+                    userProfileProps={{
+                        appearance: {
+                            baseTheme:
+                                resolvedTheme === 'dark' ? dark : undefined,
+                        },
                     }}
                 />
                 {getUserName({

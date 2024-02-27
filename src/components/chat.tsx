@@ -4,7 +4,13 @@ import type { Message, Model, UserInfo } from '@/types'
 import type { Role } from '@prisma/client'
 
 import { messageAtom, messagesAtom, modelAtom } from '@/atoms'
-import { getModelName, getUserName, getUsernameFallback } from '@/lib/utils'
+import {
+    extractImageUrls,
+    getModelName,
+    getUserName,
+    getUsernameFallback,
+    isImage,
+} from '@/lib/utils'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { dark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
@@ -20,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import ReactMarkdown from 'react-markdown'
 import { Bot } from 'lucide-react'
+import Image from 'next/image'
 
 type ChatProps = {
     defaultMessages: Message[]
@@ -60,6 +67,7 @@ export const Chat = ({ defaultMessages }: ChatProps) => {
                     isLast={index === messages.length - 1}
                     elementRef={lastElementRef}
                     isDarkMode={resolvedTheme === 'dark'}
+                    isImage={isImage(m.content)}
                 />
             ))}
 
@@ -71,6 +79,7 @@ export const Chat = ({ defaultMessages }: ChatProps) => {
                     isLast
                     elementRef={lastElementRef}
                     isDarkMode={resolvedTheme === 'dark'}
+                    isImage={isImage(message)}
                 />
             )}
         </div>
@@ -87,6 +96,7 @@ type ChatCardProps = {
     isLast: boolean
     elementRef: React.RefObject<HTMLDivElement>
     isDarkMode: boolean
+    isImage: boolean
 }
 
 const ChatCard = ({
@@ -97,6 +107,7 @@ const ChatCard = ({
     elementRef,
     isLast,
     isDarkMode,
+    isImage,
 }: ChatCardProps) => {
     return (
         <Card ref={isLast ? elementRef : null}>
@@ -133,7 +144,17 @@ const ChatCard = ({
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                {role !== 'user' ? (
+                {isImage ? (
+                    extractImageUrls(message).map((url, idx) => (
+                        <Image
+                            key={idx}
+                            src={url}
+                            alt='Image'
+                            width={300}
+                            height={300}
+                        />
+                    ))
+                ) : role !== 'user' ? (
                     <ReactMarkdown
                         className={
                             'fit-width prose break-words dark:prose-invert lg:max-w-full'

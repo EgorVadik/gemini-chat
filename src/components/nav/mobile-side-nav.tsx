@@ -1,6 +1,6 @@
 import { MenuSquare } from 'lucide-react'
 import { SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Chat } from '@/types'
+import { Chat, Plan } from '@/types'
 import { SideNavLink } from './side-nav-link'
 import { Suspense } from 'react'
 import { UserPlan } from '../user-plan'
@@ -9,7 +9,6 @@ import { ScrollArea } from '../ui/scroll-area'
 import { NewChatButton } from '../buttons/new-chat-button'
 import { getUserSubscriptionInfo } from '@/actions/user'
 import { SettingsButton } from '../buttons/settings-button'
-import { Plan } from '@prisma/client'
 import { MobileSheet } from './mobile-sheet'
 
 export const MobileSideNav = async ({ chats }: { chats: Chat }) => {

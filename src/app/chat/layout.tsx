@@ -1,5 +1,6 @@
 import { getUserChats } from '@/actions/user'
-import { ModelCombobox } from '@/components/buttons/model-combobox'
+import { GenerationsCombobox } from '@/components/combo-boxes/generations-combobox'
+import { ModelCombobox } from '@/components/combo-boxes/model-combobox'
 import { MobileSideNav } from '@/components/nav/mobile-side-nav'
 import { SideNav } from '@/components/nav/side-nav'
 import { auth } from '@clerk/nextjs'
@@ -20,6 +21,7 @@ export default async function ChatLayout({
                 <div className='sticky top-0 z-10 flex items-center gap-4 bg-background p-5'>
                     <MobileSideNav chats={chats} />
                     <ModelCombobox />
+                    <GenerationsCombobox />
                 </div>
                 <div className='flex grow flex-col justify-between px-5'>
                     {children}

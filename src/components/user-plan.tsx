@@ -1,10 +1,10 @@
 import { checkApiLimit, getUserSubscriptionInfo } from '@/actions/user'
 import React from 'react'
 import { Card, CardHeader, CardFooter, CardContent } from '@/components/ui/card'
-import { Plan } from '@prisma/client'
 import { MAX_FREE_MESSAGES } from '@/lib/constants'
 import { Progress } from '@/components/ui/progress'
 import { UpgradePlanButton } from './buttons/upgrade-plan-button'
+import { Plan } from '@/types'
 
 export const UserPlan = async () => {
     const { plan } = await getUserSubscriptionInfo()

@@ -3,19 +3,18 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
-import type { Plan } from '@prisma/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FREE_CHAR_LIMIT, PAID_CHAR_LIMIT } from '@/lib/constants'
 import { useAtom } from 'jotai'
-import { messageAtom, messagesAtom, modelAtom } from '@/atoms'
-import type { Endpoint } from '@/types'
+import { generationAtom, messageAtom, messagesAtom, modelAtom } from '@/atoms'
+import type { Endpoint, Plan } from '@/types'
 import { toast } from 'sonner'
 import { usePathname, useRouter } from 'next/navigation'
-import ObjectId from 'bson-objectid'
-import { updateUserChat } from '@/actions/user'
+import { createNewChat, updateUserChat } from '@/actions/user'
 
 export const useMessageBox = ({ plan }: { plan: Plan }) => {
     const [model] = useAtom(modelAtom)
+    const [generation] = useAtom(generationAtom)
     const [maxCharError, setMaxCharError] = useState(false)
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
     const [, setStreamedMessage] = useAtom(messageAtom)
@@ -91,19 +90,34 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
     )
 
     const handleFetch = useCallback(
-        async (data: string, endpoint: Endpoint, chatId: string) => {
+        async (
+            data: string,
+            endpoint: Endpoint | null,
+            chatId: string | null,
+        ) => {
+            if (!endpoint || !chatId) {
+                toast.error('Something went wrong. Please try again.')
+                return
+            }
+
             const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    history: messages,
+                    history: generation !== 'image' ? messages : null,
                     latestMessage: data,
                 }),
             })
 
             if (!res.ok) {
+                if (res.status === 404) {
+                    handleError(
+                        'Model not found. Please refresh the page and try again.',
+                    )
+                    return
+                }
                 const error = await res.json()
                 handleError(error.message)
                 return
@@ -129,14 +143,22 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
                 getTitle: messages.length === 0,
             })
         },
-        [handleError, messages, setStreamedMessage, updateMessages],
+        [generation, handleError, messages, setStreamedMessage, updateMessages],
     )
 
     const onSubmit = form.handleSubmit(async (data) => {
         setLoading(true)
-        let id = new ObjectId().toHexString()
-        if (pathName === '/chat') router.push(`/chat/${id}`)
-        else id = pathName.split('/').pop()!
+        let id: string | null = null
+
+        if (pathName === '/chat') {
+            const { success, chatId, error } = await createNewChat()
+            if (!success) {
+                handleError(error || 'Something went wrong. Please try again.')
+                return
+            }
+            id = chatId
+            router.push(`/chat/${id}`)
+        } else id = pathName.split('/').pop()!
 
         setMessages((prev) => [
             ...prev,
@@ -149,17 +171,47 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
 
         switch (model) {
             case 'gemini':
-                await handleFetch(data.message, '/api/chat/gemini', id)
+                await handleFetch(
+                    data.message,
+                    generation === 'chat'
+                        ? '/api/chat/gemini'
+                        : generation === 'code'
+                          ? '/api/code/gemini'
+                          : null,
+                    id,
+                )
                 break
             case 'chatgpt35':
-                await handleFetch(data.message, '/api/chat/gpt-3', id)
+                await handleFetch(
+                    data.message,
+                    generation === 'chat'
+                        ? '/api/chat/gpt-3'
+                        : generation === 'code'
+                          ? '/api/code/gpt-3'
+                          : null,
+                    id,
+                )
                 break
             case 'chatgpt4':
-                await handleFetch(data.message, '/api/chat/gpt-4', id)
+                await handleFetch(
+                    data.message,
+                    generation === 'chat'
+                        ? '/api/chat/gpt-4'
+                        : generation === 'code'
+                          ? '/api/code/gpt-4'
+                          : null,
+                    id,
+                )
+                break
+            case 'dalle2':
+                await handleFetch(data.message, '/api/image/dall-e-2', id)
+                break
+            case 'dalle3':
+                await handleFetch(data.message, '/api/image/dall-e-3', id)
                 break
 
             default:
-                toast.error(
+                handleError(
                     'Invalid model selected. Please refresh the page and try again.',
                 )
                 break

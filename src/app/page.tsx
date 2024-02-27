@@ -1,3 +1,5 @@
+'use client'
+
 import { LandingNav } from '@/components/nav/landing-nav'
 import { buttonVariants } from '@/components/ui/button'
 import Link from 'next/link'
@@ -11,9 +13,16 @@ import {
 } from '@/components/ui/card'
 import { FEATURES, PRICING } from '@/lib/constants'
 import { Check } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { BackgroundGradient } from '@/components/ui/background-gradient'
+import { motion } from 'framer-motion'
+
+export const dynamic = 'force-static'
+const description =
+    'Gemini Chat is a platform for interacting with different AI language models, including GPT-3.5, GPT-4, and Gemini.'
 
 export default function Home() {
+    const MotionCard = motion(Card)
+
     return (
         <>
             <div className='fixed top-0 z-[-2] h-screen w-screen bg-background bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]' />
@@ -25,17 +34,25 @@ export default function Home() {
                             Gemini Chat
                         </h1>
                         <p className='mx-auto max-w-lg text-balance text-2xl'>
-                            Gemini Chat is a platform for interacting with
-                            different AI language models, including GPT-3.5,
-                            GPT-4, and Gemini.
+                            {description.split(' ').map((word, idx) => (
+                                <motion.span
+                                    key={idx}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{
+                                        delay: idx * 0.1,
+                                        duration: 0.3,
+                                    }}
+                                >
+                                    {word}{' '}
+                                </motion.span>
+                            ))}
                         </p>
                         <Link
                             href={'/sign-up'}
                             draggable={false}
                             className={buttonVariants({
-                                className:
-                                    'relative mx-auto block h-fit w-fit rounded-full bg-gradient-to-r from-primary to-primary-foreground px-10 py-3 text-lg font-bold text-white ring-primary hover:ring-2',
-                                variant: 'default',
+                                variant: 'shimmer',
                             })}
                         >
                             Get Started
@@ -47,7 +64,14 @@ export default function Home() {
                         className='grid grid-cols-1 gap-4 px-4 lg:grid-cols-2'
                     >
                         {FEATURES.map((feature, index) => (
-                            <Card key={index}>
+                            <MotionCard
+                                initial={{ opacity: 0, x: -200 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{
+                                    delay: index * 0.1,
+                                }}
+                                key={index}
+                            >
                                 <CardHeader>
                                     <CardTitle className='text-center text-3xl font-bold text-primary'>
                                         {feature.title}
@@ -58,7 +82,7 @@ export default function Home() {
                                         {feature.description}
                                     </CardDescription>
                                 </CardContent>
-                            </Card>
+                            </MotionCard>
                         ))}
                     </section>
 
@@ -72,64 +96,61 @@ export default function Home() {
                             your demands grow.
                         </p>
 
-                        <div className='grid grid-cols-1 gap-4 px-4 py-10 lg:grid-cols-3'>
+                        <div className='grid grid-cols-1 gap-4 px-4 py-10 md:grid-cols-2'>
                             {PRICING.map((plan, index) => (
-                                <Card
+                                <BackgroundGradient
                                     key={index}
-                                    className={cn(
-                                        'lg:mx-auto lg:max-w-xs',
-                                        plan.title === 'Pro' && 'lg:scale-110',
-                                    )}
+                                    hidden={plan.title === 'Starter'}
                                 >
-                                    <CardHeader>
-                                        <CardTitle className='text-center text-3xl font-bold text-primary'>
-                                            {plan.title}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <CardDescription className='mx-auto max-w-sm text-balance text-center text-lg'>
-                                            <span className='text-5xl font-bold'>
-                                                {plan.price === 0
-                                                    ? 'Free'
-                                                    : `$${plan.price}`}
-                                            </span>
-                                            {plan.price === 0 ? null : (
-                                                <span>/month</span>
-                                            )}
-                                        </CardDescription>
-                                        <ul className='mt-4 space-y-2 text-balance text-sm'>
-                                            {plan.features.map(
-                                                (feature, index) => (
-                                                    <li
-                                                        key={index}
-                                                        className='flex items-center gap-2'
-                                                    >
-                                                        <Check />
-                                                        {feature}
-                                                    </li>
-                                                ),
-                                            )}
-                                        </ul>
-                                    </CardContent>
-                                    <CardFooter>
-                                        <Link
-                                            href={'/sign-up'}
-                                            draggable={false}
-                                            className={buttonVariants({
-                                                className:
-                                                    'relative mx-auto block h-fit w-fit rounded-full bg-gradient-to-r from-primary to-primary-foreground px-10 py-3 text-lg font-bold text-white ring-primary hover:ring-2',
-                                                variant:
-                                                    plan.title === 'Pro'
-                                                        ? 'default'
-                                                        : 'outline',
-                                            })}
-                                        >
-                                            {plan.title === 'Pro'
-                                                ? 'Get Started'
-                                                : 'Upgrade'}
-                                        </Link>
-                                    </CardFooter>
-                                </Card>
+                                    <Card className='w-full'>
+                                        <CardHeader>
+                                            <CardTitle className='text-left text-3xl font-bold text-primary'>
+                                                {plan.title}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <CardDescription className='text-balance text-left text-lg'>
+                                                <span className='text-5xl font-bold'>
+                                                    {plan.price === 0
+                                                        ? 'Free'
+                                                        : `$${plan.price}`}
+                                                </span>
+                                                {plan.price === 0 ? null : (
+                                                    <span>/month</span>
+                                                )}
+                                            </CardDescription>
+                                            <ul className='mt-4 space-y-2 text-balance text-sm'>
+                                                {plan.features.map(
+                                                    (feature, index) => (
+                                                        <li
+                                                            key={index}
+                                                            className='flex items-center gap-2'
+                                                        >
+                                                            <Check />
+                                                            {feature}
+                                                        </li>
+                                                    ),
+                                                )}
+                                            </ul>
+                                        </CardContent>
+                                        <CardFooter>
+                                            <Link
+                                                href={'/sign-up'}
+                                                draggable={false}
+                                                className={buttonVariants({
+                                                    variant:
+                                                        plan.title === 'Pro'
+                                                            ? 'shimmer'
+                                                            : 'outline',
+                                                    className:
+                                                        'h-fit w-full py-3',
+                                                })}
+                                            >
+                                                Get Started
+                                            </Link>
+                                        </CardFooter>
+                                    </Card>
+                                </BackgroundGradient>
                             ))}
                         </div>
                     </section>

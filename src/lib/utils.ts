@@ -63,9 +63,21 @@ export function getAbsoluteUrl(url: string) {
 
 export function formatDate(input: string | number): string {
     const date = new Date(input)
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
+    return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
     })
-  }
+}
+
+export function isImage(url: string) {
+    return /{\s*"urls"\s*:\s*\[\s*"(https:\/\/[^"]+)"\s*\]\s*}/g.test(url)
+}
+
+export function extractImageUrls(url: string) {
+    const matchedUrls = url.match(
+        /{\s*"urls"\s*:\s*\[\s*"(https:\/\/[^"]+)"\s*\]\s*}/g,
+    )?.[0]
+    const images = JSON.parse(matchedUrls ?? '{ "urls": []}')
+    return images.urls as string[]
+}

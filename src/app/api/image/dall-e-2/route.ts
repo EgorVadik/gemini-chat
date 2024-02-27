@@ -1,30 +1,33 @@
 import OpenAI from 'openai'
-import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { messageSchema } from '@/schema'
-import { checkApiLimit, increaseApiLimit } from '@/actions/user'
+import { getUserSubscriptionInfo } from '@/actions/user'
 import { NextResponse } from 'next/server'
-import { MAX_FREE_MESSAGES } from '@/lib/constants'
 import { z } from 'zod'
 import { Plan } from '@/types'
+import { imageGenerationSchema } from '@/schema'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 })
 
 export async function POST(req: Request) {
+    if (true) {
+        return NextResponse.json(
+            {
+                message:
+                    'Lets not use image generation for now. its bad and expensive.',
+            },
+            {
+                status: 400,
+            },
+        )
+    }
+
     const data = await req.json()
     try {
-        const { count, error, limit, success, plan } = await checkApiLimit()
-        const { history, latestMessage } = messageSchema(
-            plan ?? Plan.FREE,
-        ).parse(data)
-        const messages: typeof history = [
-            ...history,
-            {
-                content: latestMessage,
-                role: 'user',
-            },
-        ]
+        const { prompt } = imageGenerationSchema.parse({
+            prompt: data?.latestMessage,
+        })
+        const { plan, success, error } = await getUserSubscriptionInfo()
 
         if (!success) {
             return NextResponse.json(
@@ -35,13 +38,10 @@ export async function POST(req: Request) {
             )
         }
 
-        if (
-            (plan == null || plan === Plan.FREE) &&
-            (!limit || count >= MAX_FREE_MESSAGES)
-        ) {
+        if (plan == null || plan === Plan.FREE) {
             return NextResponse.json(
                 {
-                    message: 'You have reached your message limit',
+                    message: 'You must be on a paid plan to use this feature.',
                 },
                 {
                     status: 402,
@@ -49,16 +49,22 @@ export async function POST(req: Request) {
             )
         }
 
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4',
-            stream: true,
-            messages,
+        const response = await openai.images.generate({
+            prompt,
+            model: 'dall-e-2',
+            response_format: 'url',
+            size: '1024x1024',
+            n: 1,
         })
 
-        const stream = OpenAIStream(response)
-
-        await increaseApiLimit()
-        return new StreamingTextResponse(stream)
+        return NextResponse.json(
+            {
+                urls: response.data.map((data) => data.url),
+            },
+            {
+                status: 200,
+            },
+        )
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json(

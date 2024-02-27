@@ -10,11 +10,11 @@ import {
     FormMessage,
 } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
-import type { Plan } from '@prisma/client'
 import { FREE_CHAR_LIMIT, PAID_CHAR_LIMIT } from '@/lib/constants'
 import { cn, getModelName } from '@/lib/utils'
 import { Loader2, Send } from 'lucide-react'
 import { useMessageBox } from '@/hooks/use-message-box'
+import { Plan } from '@/types'
 
 export const MessageBox = ({ plan }: { plan: Plan }) => {
     const {

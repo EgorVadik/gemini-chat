@@ -19,12 +19,13 @@ import {
 } from '@/components/ui/popover'
 import { MODELS } from '@/lib/constants'
 import { useAtom } from 'jotai'
-import { modelAtom } from '@/atoms'
+import { generationAtom, modelAtom } from '@/atoms'
 import { Model } from '@/types'
 
 export function ModelCombobox() {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = useAtom(modelAtom)
+    const [generation] = useAtom(generationAtom)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -54,6 +55,14 @@ export function ModelCombobox() {
                                     setValue(currentValue as Model)
                                     setOpen(false)
                                 }}
+                                disabled={
+                                    ((model.value === 'dalle2' ||
+                                        model.value === 'dalle3') &&
+                                        generation !== 'image') ||
+                                    (model.value !== 'dalle2' &&
+                                        model.value !== 'dalle3' &&
+                                        generation === 'image')
+                                }
                             >
                                 <Check
                                     className={cn(

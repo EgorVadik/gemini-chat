@@ -1,9 +1,8 @@
 import OpenAI from 'openai'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
 import { messageSchema } from '@/schema'
-import { checkApiLimit, increaseApiLimit } from '@/actions/user'
+import { getUserSubscriptionInfo } from '@/actions/user'
 import { NextResponse } from 'next/server'
-import { MAX_FREE_MESSAGES } from '@/lib/constants'
 import { z } from 'zod'
 import { Plan } from '@/types'
 
@@ -11,20 +10,16 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 })
 
+const instructionMessage = {
+    role: 'system',
+    content:
+        'You are a code generator. You must answer only in markdown code snippets. Use code comments for explanations.',
+} as const
+
 export async function POST(req: Request) {
     const data = await req.json()
     try {
-        const { count, error, limit, success, plan } = await checkApiLimit()
-        const { history, latestMessage } = messageSchema(
-            plan ?? Plan.FREE,
-        ).parse(data)
-        const messages: typeof history = [
-            ...history,
-            {
-                content: latestMessage,
-                role: 'user',
-            },
-        ]
+        const { plan, success, error } = await getUserSubscriptionInfo()
 
         if (!success) {
             return NextResponse.json(
@@ -35,13 +30,10 @@ export async function POST(req: Request) {
             )
         }
 
-        if (
-            (plan == null || plan === Plan.FREE) &&
-            (!limit || count >= MAX_FREE_MESSAGES)
-        ) {
+        if (plan == null || plan === Plan.FREE) {
             return NextResponse.json(
                 {
-                    message: 'You have reached your message limit',
+                    message: 'You must be on a paid plan to use this feature.',
                 },
                 {
                     status: 402,
@@ -49,15 +41,21 @@ export async function POST(req: Request) {
             )
         }
 
+        const { history, latestMessage } = messageSchema(plan).parse(data)
+        const messages: typeof history = [
+            ...history,
+            {
+                content: latestMessage,
+                role: 'user',
+            },
+        ]
+
         const response = await openai.chat.completions.create({
             model: 'gpt-4',
             stream: true,
-            messages,
+            messages: [instructionMessage, ...messages],
         })
-
         const stream = OpenAIStream(response)
-
-        await increaseApiLimit()
         return new StreamingTextResponse(stream)
     } catch (error) {
         if (error instanceof z.ZodError) {

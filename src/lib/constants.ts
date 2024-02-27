@@ -38,19 +38,7 @@ export const PRICING = [
             '4096 characters per message',
         ],
     },
-    {
-        title: 'Enterprise',
-        price: 50,
-        features: [
-            'Unlimited Chat with Gemini',
-            'Unlimited Chat with GPT-3.5',
-            'Unlimited Chat with GPT-4',
-            'Image generation with DALL-E',
-            'Video generation with VQ-VAE-2',
-            '8192 characters per message',
-        ],
-    },
-]
+] as const
 
 export const MODELS = [
     {
@@ -64,5 +52,28 @@ export const MODELS = [
     {
         value: 'chatgpt4',
         label: 'ChatGPT-4',
+    },
+    {
+        value: 'dalle2',
+        label: 'DALL-E 2',
+    },
+    {
+        value: 'dalle3',
+        label: 'DALL-E 3',
+    },
+] as const
+
+export const GENERATIONS = [
+    {
+        value: 'chat',
+        label: 'Chat',
+    },
+    {
+        value: 'code',
+        label: 'Code',
+    },
+    {
+        value: 'image',
+        label: 'Image',
     },
 ] as const

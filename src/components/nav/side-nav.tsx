@@ -6,8 +6,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import { getUserSubscriptionInfo } from '@/actions/user'
 import { SettingsButton } from '../buttons/settings-button'
 import { SideNavLink } from './side-nav-link'
-import { Plan } from '@prisma/client'
-import { Chat } from '@/types'
+import { Chat, Plan } from '@/types'
 
 type SideNavProps = {
     chats: Chat

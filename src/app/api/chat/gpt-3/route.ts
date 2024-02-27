@@ -4,8 +4,8 @@ import { messageSchema } from '@/schema'
 import { checkApiLimit, increaseApiLimit } from '@/actions/user'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { Plan } from '@prisma/client'
 import { MAX_FREE_MESSAGES } from '@/lib/constants'
+import { Plan } from '@/types'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,

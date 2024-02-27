@@ -3,13 +3,14 @@
 import { auth, currentUser } from '@clerk/nextjs'
 import { prisma } from '@/server/db'
 import { DAY_IN_MS, MAX_FREE_MESSAGES, PAID_CHAR_LIMIT } from '@/lib/constants'
-import { Plan, Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { revalidateTag, unstable_cache } from 'next/cache'
 import { getAbsoluteUrl } from '@/lib/utils'
 import { renameSchema } from '@/schema'
 import { z } from 'zod'
 import { stripe } from '@/lib/stripe'
+import { Plan } from '@/types'
 
 export const increaseApiLimit = async () => {
     const { userId } = auth()
@@ -177,32 +178,12 @@ export const updateUserChat = async ({
         }
     }
 
-    await prisma.chat.upsert({
+    await prisma.chat.update({
         where: {
             id: chatId,
         },
-        update: {
-            messages: {
-                createMany: {
-                    data: [
-                        {
-                            content: userMessage,
-                            role: 'user',
-                            userId,
-                        },
-                        {
-                            content: systemMessage,
-                            role: 'system',
-                            userId,
-                        },
-                    ],
-                },
-            },
-        },
-        create: {
-            id: chatId,
-            userId,
-            title,
+        data: {
+            title: title ?? undefined,
             messages: {
                 createMany: {
                     data: [
@@ -225,6 +206,29 @@ export const updateUserChat = async ({
     return {
         success: true,
         error: null,
+    }
+}
+
+export const createNewChat = async () => {
+    const { userId } = auth()
+    if (!userId) {
+        return {
+            success: false,
+            error: 'You are not authenticated',
+            chatId: null,
+        }
+    }
+
+    const chat = await prisma.chat.create({
+        data: {
+            userId,
+        },
+    })
+
+    return {
+        success: true,
+        error: null,
+        chatId: chat.id,
     }
 }
 
