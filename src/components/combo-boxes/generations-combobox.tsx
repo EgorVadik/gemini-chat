@@ -21,8 +21,10 @@ import { GENERATIONS } from '@/lib/constants'
 import { useAtom } from 'jotai'
 import { generationAtom, modelAtom } from '@/atoms'
 import type { Generation } from '@/types'
+import { useRouter } from 'next/navigation'
 
 export const GenerationsCombobox = () => {
+    const router = useRouter()
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = useAtom(generationAtom)
     const [model, setModel] = useAtom(modelAtom)
@@ -54,6 +56,17 @@ export const GenerationsCombobox = () => {
                                 key={generation.value}
                                 value={generation.value}
                                 onSelect={(currentValue) => {
+                                    const params = new URLSearchParams(
+                                        window.location.search,
+                                    )
+                                    params.set(
+                                        'generation',
+                                        currentValue as string,
+                                    )
+                                    router.push('?' + params.toString(), {
+                                        scroll: false,
+                                    })
+
                                     const val = currentValue as Generation
                                     if (
                                         val === 'image' &&

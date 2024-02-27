@@ -18,15 +18,17 @@ import { dark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { useAtom } from 'jotai'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { useUser } from '@clerk/nextjs'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useTheme } from 'next-themes'
 
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import ReactMarkdown from 'react-markdown'
-import { Bot } from 'lucide-react'
+import { Bot, Copy } from 'lucide-react'
 import Image from 'next/image'
+import { Button } from './ui/button'
+import { toast } from 'sonner'
 
 type ChatProps = {
     defaultMessages: Message[]
@@ -39,10 +41,12 @@ export const Chat = ({ defaultMessages }: ChatProps) => {
     const [messages, setMessages] = useAtom(messagesAtom)
     const [model] = useAtom(modelAtom)
     const [parent] = useAutoAnimate()
-    const lastElementRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        lastElementRef.current?.scrollIntoView({ behavior: 'smooth' })
+        window.scroll({
+            top: document.body.scrollHeight,
+            behavior: 'smooth',
+        })
     }, [messages, message])
 
     useEffect(() => {
@@ -64,8 +68,6 @@ export const Chat = ({ defaultMessages }: ChatProps) => {
                         imageUrl: user?.imageUrl,
                     }}
                     model={model}
-                    isLast={index === messages.length - 1}
-                    elementRef={lastElementRef}
                     isDarkMode={resolvedTheme === 'dark'}
                     isImage={isImage(m.content)}
                 />
@@ -76,8 +78,6 @@ export const Chat = ({ defaultMessages }: ChatProps) => {
                     message={message}
                     role='system'
                     model={model}
-                    isLast
-                    elementRef={lastElementRef}
                     isDarkMode={resolvedTheme === 'dark'}
                     isImage={isImage(message)}
                 />
@@ -93,8 +93,6 @@ type ChatCardProps = {
         imageUrl?: string
     }
     model: Model
-    isLast: boolean
-    elementRef: React.RefObject<HTMLDivElement>
     isDarkMode: boolean
     isImage: boolean
 }
@@ -104,14 +102,12 @@ const ChatCard = ({
     role,
     user,
     model,
-    elementRef,
-    isLast,
     isDarkMode,
     isImage,
 }: ChatCardProps) => {
     return (
-        <Card ref={isLast ? elementRef : null}>
-            <CardHeader>
+        <Card>
+            <CardHeader className='flex flex-row items-start justify-between'>
                 <CardTitle>
                     <div className='flex items-center gap-2'>
                         {role === 'user' ? (
@@ -142,6 +138,17 @@ const ChatCard = ({
                         )}
                     </div>
                 </CardTitle>
+                <Button
+                    onClick={() => {
+                        navigator.clipboard.writeText(message)
+                        toast.success('Copied to clipboard')
+                    }}
+                    size={'icon'}
+                    variant={'outline'}
+                >
+                    <span className='sr-only'>Copy</span>
+                    <Copy />
+                </Button>
             </CardHeader>
             <CardContent>
                 {isImage ? (

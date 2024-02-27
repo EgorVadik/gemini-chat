@@ -21,8 +21,10 @@ import { MODELS } from '@/lib/constants'
 import { useAtom } from 'jotai'
 import { generationAtom, modelAtom } from '@/atoms'
 import { Model } from '@/types'
+import { useRouter } from 'next/navigation'
 
 export function ModelCombobox() {
+    const router = useRouter()
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = useAtom(modelAtom)
     const [generation] = useAtom(generationAtom)
@@ -52,6 +54,13 @@ export function ModelCombobox() {
                                 key={model.value}
                                 value={model.value}
                                 onSelect={(currentValue) => {
+                                    const params = new URLSearchParams(
+                                        window.location.search,
+                                    )
+                                    params.set('model', currentValue as string)
+                                    router.push('?' + params.toString(), {
+                                        scroll: false,
+                                    })
                                     setValue(currentValue as Model)
                                     setOpen(false)
                                 }}

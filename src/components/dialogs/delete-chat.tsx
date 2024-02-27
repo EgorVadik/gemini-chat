@@ -14,6 +14,7 @@ import { deleteChat } from '@/actions/user'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export const DeleteChat = ({
     children,
@@ -23,6 +24,7 @@ export const DeleteChat = ({
     chatId: string
 }) => {
     const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
     return (
         <AlertDialog>
@@ -50,6 +52,7 @@ export const DeleteChat = ({
                             }
 
                             setLoading(false)
+                            router.replace('/chat')
                         }}
                         className={buttonVariants({
                             variant: 'destructive',

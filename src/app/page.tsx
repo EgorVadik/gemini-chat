@@ -15,6 +15,7 @@ import { FEATURES, PRICING } from '@/lib/constants'
 import { Check } from 'lucide-react'
 import { BackgroundGradient } from '@/components/ui/background-gradient'
 import { motion } from 'framer-motion'
+import { BackgroundBeams } from '@/components/ui/background-beams'
 
 export const dynamic = 'force-static'
 const description =
@@ -25,12 +26,12 @@ export default function Home() {
 
     return (
         <>
-            <div className='fixed top-0 z-[-2] h-screen w-screen bg-background bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]' />
+            <BackgroundBeams />
             <div className='container'>
                 <LandingNav />
                 <main className='min-h-screen py-10'>
                     <section id='home' className='space-y-4 py-44 text-center'>
-                        <h1 className='bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-6xl font-bold text-transparent'>
+                        <h1 className='bg-gradient-to-b from-primary to-primary-foreground bg-clip-text text-6xl font-bold text-transparent'>
                             Gemini Chat
                         </h1>
                         <p className='mx-auto max-w-lg text-balance text-2xl'>

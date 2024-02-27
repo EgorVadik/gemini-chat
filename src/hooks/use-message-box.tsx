@@ -9,7 +9,7 @@ import { useAtom } from 'jotai'
 import { generationAtom, messageAtom, messagesAtom, modelAtom } from '@/atoms'
 import type { Endpoint, Plan } from '@/types'
 import { toast } from 'sonner'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { createNewChat, updateUserChat } from '@/actions/user'
 
 export const useMessageBox = ({ plan }: { plan: Plan }) => {
@@ -22,6 +22,7 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
     const [loading, setLoading] = useState(false)
     const pathName = usePathname()
     const router = useRouter()
+    const searchParams = useSearchParams()
 
     const messageSchema = useMemo(
         () =>
@@ -157,7 +158,7 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
                 return
             }
             id = chatId
-            router.push(`/chat/${id}`)
+            router.push(`/chat/${id}?${searchParams.toString()}`)
         } else id = pathName.split('/').pop()!
 
         setMessages((prev) => [
