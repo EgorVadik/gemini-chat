@@ -1,6 +1,6 @@
 export const MAX_FREE_MESSAGES = 50
 export const FREE_CHAR_LIMIT = 750
-export const PAID_CHAR_LIMIT = 4096
+export const PAID_CHAR_LIMIT = 8192 * 2
 export const DAY_IN_MS = 86_400_000
 
 export const FEATURES = [
@@ -24,7 +24,7 @@ export const PRICING = [
             'Chat with GPT-3.5',
             'Chat with GPT-4',
             'Limited to 50 messages',
-            '750 characters per message',
+            `${FREE_CHAR_LIMIT} characters per message`,
         ],
     },
     {
@@ -35,7 +35,7 @@ export const PRICING = [
             'Unlimited Chat with GPT-3.5',
             'Unlimited Chat with GPT-4',
             'Image generation with DALL-E',
-            '4096 characters per message',
+            `${PAID_CHAR_LIMIT} characters per message`,
         ],
     },
 ] as const
