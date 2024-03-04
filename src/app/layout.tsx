@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
-
+import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
@@ -29,6 +29,7 @@ export default function RootLayout({
                     >
                         {children}
                         <Toaster />
+                        <Analytics />
                     </ThemeProvider>
                 </body>
             </html>
