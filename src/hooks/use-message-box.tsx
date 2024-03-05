@@ -19,7 +19,6 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
     const [, setStreamedMessage] = useAtom(messageAtom)
     const [messages, setMessages] = useAtom(messagesAtom)
-    const [loading, setLoading] = useState(false)
     const pathName = usePathname()
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -148,7 +147,6 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
     )
 
     const onSubmit = form.handleSubmit(async (data) => {
-        setLoading(true)
         let id: string | null = null
 
         if (pathName === '/chat') {
@@ -218,7 +216,6 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
                 break
         }
         router.refresh()
-        setLoading(false)
     })
 
     return {
@@ -229,6 +226,6 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
         model,
         message,
         messages,
-        loading,
+        loading: form.formState.isSubmitting,
     }
 }
