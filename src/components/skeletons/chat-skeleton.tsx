@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
 export const ChatSkeleton = () => {
     return (
-        <div className='space-y-6'>
+        <div className='container w-full space-y-6 max-sm:p-0'>
             {new Array(5).fill(0).map((_, idx) => (
                 <Card key={idx}>
                     <CardHeader>
