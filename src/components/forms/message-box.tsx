@@ -33,7 +33,7 @@ export const MessageBox = ({ plan }: { plan: Plan }) => {
         <Form {...form}>
             <form
                 onSubmit={onSubmit}
-                className='sticky bottom-0 bg-background pb-5'
+                className='sticky bottom-0 w-full bg-background pb-5'
             >
                 <FormField
                     control={form.control}

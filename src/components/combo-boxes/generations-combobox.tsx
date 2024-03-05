@@ -36,7 +36,7 @@ export const GenerationsCombobox = () => {
                     variant='outline'
                     role='combobox'
                     aria-expanded={open}
-                    className='w-[200px] justify-between'
+                    className='w-fit justify-between sm:w-[200px]'
                 >
                     {value
                         ? GENERATIONS.find(

@@ -164,7 +164,7 @@ const ChatCard = ({
                 ) : role !== 'user' ? (
                     <ReactMarkdown
                         className={
-                            'fit-width prose break-words dark:prose-invert lg:max-w-full'
+                            'prose min-w-0 max-w-none whitespace-break-spaces text-wrap break-words dark:prose-invert'
                         }
                         remarkPlugins={[remarkGfm]}
                         components={{

@@ -27,7 +27,7 @@ export default async function ChatLayout({
                     <ModelCombobox />
                     {plan === Plan.PRO && <GenerationsCombobox />}
                 </div>
-                <div className='flex grow flex-col justify-between px-5'>
+                <div className='flex w-[100vw] grow flex-col items-center justify-between px-5 xl:w-[calc(100vw-16.5rem)]'>
                     <Suspense fallback={<ChatSkeleton />}>{children}</Suspense>
                     <MessageBox plan={plan} />
                 </div>

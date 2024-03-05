@@ -36,7 +36,7 @@ export function ModelCombobox() {
                     variant='outline'
                     role='combobox'
                     aria-expanded={open}
-                    className='w-[200px] justify-between'
+                    className='w-fit justify-between sm:w-[200px]'
                 >
                     {value
                         ? MODELS.find((model) => model.value === value)?.label

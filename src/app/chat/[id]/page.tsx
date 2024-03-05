@@ -19,7 +19,7 @@ export default async function page({
     if (chat == null) notFound()
 
     return (
-        <main className='container h-full min-w-0'>
+        <main className='container h-full min-w-0 max-sm:p-0'>
             <Chat
                 defaultMessages={chat.messages.map((m) => ({
                     content: m.content,
