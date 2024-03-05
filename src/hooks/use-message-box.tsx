@@ -19,6 +19,7 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
     const [, setStreamedMessage] = useAtom(messageAtom)
     const [messages, setMessages] = useAtom(messagesAtom)
+    const [loading, setLoading] = useState(false)
     const pathName = usePathname()
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -147,75 +148,85 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
     )
 
     const onSubmit = form.handleSubmit(async (data) => {
-        let id: string | null = null
+        setLoading(true)
+        try {
+            let id: string | null = null
 
-        if (pathName === '/chat') {
-            const { success, chatId, error } = await createNewChat()
-            if (!success) {
-                handleError(error || 'Something went wrong. Please try again.')
-                return
+            if (pathName === '/chat') {
+                const { success, chatId, error } = await createNewChat()
+                if (!success) {
+                    handleError(
+                        error || 'Something went wrong. Please try again.',
+                    )
+                    setLoading(false)
+                    return
+                }
+                id = chatId
+                router.push(`/chat/${id}?${searchParams.toString()}`)
+            } else id = pathName.split('/').pop()!
+
+            setMessages((prev) => [
+                ...prev,
+                {
+                    content: data.message,
+                    role: 'user',
+                },
+            ])
+            form.reset()
+
+            switch (model) {
+                case 'gemini':
+                    await handleFetch(
+                        data.message,
+                        generation === 'chat'
+                            ? '/api/chat/gemini'
+                            : generation === 'code'
+                              ? '/api/code/gemini'
+                              : null,
+                        id,
+                    )
+                    break
+                case 'chatgpt35':
+                    await handleFetch(
+                        data.message,
+                        generation === 'chat'
+                            ? '/api/chat/gpt-3'
+                            : generation === 'code'
+                              ? '/api/code/gpt-3'
+                              : null,
+                        id,
+                    )
+                    break
+                case 'chatgpt4':
+                    await handleFetch(
+                        data.message,
+                        generation === 'chat'
+                            ? '/api/chat/gpt-4'
+                            : generation === 'code'
+                              ? '/api/code/gpt-4'
+                              : null,
+                        id,
+                    )
+                    break
+                case 'dalle2':
+                    await handleFetch(data.message, '/api/image/dall-e-2', id)
+                    break
+                case 'dalle3':
+                    await handleFetch(data.message, '/api/image/dall-e-3', id)
+                    break
+
+                default:
+                    handleError(
+                        'Invalid model selected. Please refresh the page and try again.',
+                    )
+                    break
             }
-            id = chatId
-            router.push(`/chat/${id}?${searchParams.toString()}`)
-        } else id = pathName.split('/').pop()!
-
-        setMessages((prev) => [
-            ...prev,
-            {
-                content: data.message,
-                role: 'user',
-            },
-        ])
-        form.reset()
-
-        switch (model) {
-            case 'gemini':
-                await handleFetch(
-                    data.message,
-                    generation === 'chat'
-                        ? '/api/chat/gemini'
-                        : generation === 'code'
-                          ? '/api/code/gemini'
-                          : null,
-                    id,
-                )
-                break
-            case 'chatgpt35':
-                await handleFetch(
-                    data.message,
-                    generation === 'chat'
-                        ? '/api/chat/gpt-3'
-                        : generation === 'code'
-                          ? '/api/code/gpt-3'
-                          : null,
-                    id,
-                )
-                break
-            case 'chatgpt4':
-                await handleFetch(
-                    data.message,
-                    generation === 'chat'
-                        ? '/api/chat/gpt-4'
-                        : generation === 'code'
-                          ? '/api/code/gpt-4'
-                          : null,
-                    id,
-                )
-                break
-            case 'dalle2':
-                await handleFetch(data.message, '/api/image/dall-e-2', id)
-                break
-            case 'dalle3':
-                await handleFetch(data.message, '/api/image/dall-e-3', id)
-                break
-
-            default:
-                handleError(
-                    'Invalid model selected. Please refresh the page and try again.',
-                )
-                break
+            router.refresh()
+        } catch (error) {
+            toast.error('Something went wrong. Please try again.')
+        } finally {
+            setLoading(false)
         }
-        router.refresh()
     })
 
     return {
@@ -226,6 +237,6 @@ export const useMessageBox = ({ plan }: { plan: Plan }) => {
         model,
         message,
         messages,
-        loading: form.formState.isSubmitting,
+        loading,
     }
 }
